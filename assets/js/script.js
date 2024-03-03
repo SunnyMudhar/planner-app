@@ -1,10 +1,15 @@
-const container = $('.container');
-const currentDay = $('#currentDay');
+let container = $('.container');
+let currentDay = $('#currentDay');
 let today = dayjs();
 
 $(document).ready( () => {
     setUpCanvas();
+    getLocalStorage();
 })
+
+function getCurrentDate() {
+    currentDay.text(dayjs().format('DD MMM YYYY [at] hh:mm:ss a'));
+}
 
 // func to create the dates
 function setUpCanvas() {
@@ -20,10 +25,7 @@ function setUpCanvas() {
 
         container.append(row);
     }
-}
-
-function getCurrentDate() {
-    currentDay.text(today.format('DD MMM YYYY [at] hh:mm:ss a'));
+    createClearButton();
 }
 
 function getColor(time) {
@@ -36,26 +38,35 @@ function getColor(time) {
     }
 }
 
+function createClearButton() {
+    var btn = `
+        <button type = "button" class = "btn btn-dark clear-btn">Clear All Tasks</button>
+        `
+    container.append(btn);
+}
+
 // func to retreive local storage
 function getLocalStorage() {
-    $('.hour').each( () => {
+    $('.hour').each( function() {
         let hour = $(this).parent().attr('id');
-        console.log(hour);
-        if($(this).siblings('.description').val() === null) {
+        if($(this).siblings('.description').val() !== null) {
             $(this).siblings('.description').val(localStorage.getItem(hour));
         }
     });
 }
 
-function btnClick() {
+function btnSave() {
     let hour = $(this).parent().attr('id');
     let description = $(this).siblings('.description').val();
-    console.log(description);
-    console.log(hour);
     localStorage.setItem(hour, description);
+}
+
+function btnClear() {
+    localStorage.clear();
+    location.reload();
 } 
 
-container.on('click', '.saveBtn', btnClick);
-container.ready(getLocalStorage);
+container.on('click', '.saveBtn', btnSave);
+container.on('click', '.clear-btn', btnClear);
 
 setInterval(getCurrentDate, 1000);
